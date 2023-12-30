@@ -1,16 +1,22 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { React } from "react";
+import { Route, Routes, Navigate } from "react-router-dom";
 
-import RtlLayout from "layouts/rtl";
 import AdminLayout from "layouts/admin";
 import AuthLayout from "layouts/auth";
 const App = () => {
+  const credential = localStorage.getItem("credentialResponse") || null;
+
   return (
     <Routes>
-      <Route path="auth/*" element={<AuthLayout />} />
-      <Route path="admin/*" element={<AdminLayout />} />
-      <Route path="rtl/*" element={<RtlLayout />} />
-      <Route path="/" element={<Navigate to="/admin" replace />} />
+      <Route
+        path="/"
+        element={credential != null ? <AdminLayout /> : <AuthLayout />}
+      />
+      <Route path="/*" element={<Navigate to="/" />} />
+      <Route
+        path="admin/*"
+        element={credential != null ? <AdminLayout /> : <Navigate to="/" />}
+      />
     </Routes>
   );
 };

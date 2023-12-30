@@ -1,8 +1,9 @@
-import React from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import axios from "axios";
+import Footer from "components/footer/Footer";
 import Navbar from "components/navbar";
 import Sidebar from "components/sidebar";
-import Footer from "components/footer/Footer";
+import React from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import routes from "routes.js";
 
 export default function Admin(props) {
@@ -10,6 +11,8 @@ export default function Admin(props) {
   const location = useLocation();
   const [open, setOpen] = React.useState(true);
   const [currentRoute, setCurrentRoute] = React.useState("Main Dashboard");
+  const [name, setName] = React.useState("");
+  const [picture, setPicture] = React.useState("");
 
   React.useEffect(() => {
     window.addEventListener("resize", () =>
@@ -19,6 +22,31 @@ export default function Admin(props) {
   React.useEffect(() => {
     getActiveRoute(routes);
   }, [location.pathname]);
+
+  React.useEffect(() => {
+    decodeToken();
+  }, []);
+
+  const decodeToken = async () => {
+    const token = localStorage.getItem("credentialResponse");
+    if (token) {
+      const decodedToken = JSON.parse(token);
+      try {
+        const res = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${decodedToken}`,
+            },
+          }
+        );
+        setName(res.data.name);
+        setPicture(res.data.picture);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   const getActiveRoute = (routes) => {
     let activeRoute = "Main Dashboard";
@@ -72,6 +100,8 @@ export default function Admin(props) {
               onOpenSidenav={() => setOpen(true)}
               logoText={"Horizon UI Tailwind React"}
               brandText={currentRoute}
+              name={name}
+              picture={picture}
               secondary={getActiveNavbar(routes)}
               {...rest}
             />
